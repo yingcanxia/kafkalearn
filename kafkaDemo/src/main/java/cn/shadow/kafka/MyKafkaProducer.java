@@ -2,15 +2,15 @@ package cn.shadow.kafka;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.IntegerSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-
-import ch.qos.logback.core.util.TimeUtil;
 
 public class MyKafkaProducer extends Thread{
 
@@ -25,23 +25,32 @@ public class MyKafkaProducer extends Thread{
 		Properties properties=new Properties();
 		properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.1.132:9092");// 在这里可以设置多个字符串
 		properties.put(ProducerConfig.CLIENT_ID_CONFIG, "producer");
-		// 声明序列化方式
+		// 默认是批量发送，会存在频繁的网络通信，没有批量发送出去之前，都是存在于内存之中的
+		properties.put(ProducerConfig.BATCH_SIZE_CONFIG,"");
+		// 两次发送的间隔时间，这两个条件谁先满足了，谁就开始做
+		properties.put(ProducerConfig.LINGER_MS_CONFIG, "");
+		
+		// 声明序列化方式，序列化方式是根据具体类型进行的，因为kafka服务器是需要处理不同语言的
 		properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class.getName());// key值的序列化
 		properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());// value值的序列化
 		producer=new KafkaProducer<Integer, String>(properties);
 	}
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		int num=0;
-		String msg="my kafka practice msg"+num;
 		while(num<20) {
+			String msg="my kafka practice msg"+num;
 			num++;
 			try {
-				// get会拿到发送的结果
-				RecordMetadata recordMetadata= producer.send(new ProducerRecord<Integer, String>(topic, msg)).get();
-				System.out.println(recordMetadata.offset()+"->"+recordMetadata.partition()+"->");
-				//TimeUtil.SECONDS.
+				// get会拿到发送的结果,这个是阻塞方法
+				//RecordMetadata recordMetadata= producer.send(new ProducerRecord<Integer, String>(topic, msg)).get();
+				// 同步get -> future()
+				RecordMetadata recordMetadata= producer.send(new ProducerRecord<Integer, String>(topic, msg),(metadata,exception)->{
+					// 使用异步的回调通知
+				}).get();
+				System.out.println(recordMetadata.offset()+"->"+recordMetadata.partition()+"->"+recordMetadata.topic());
+				TimeUnit.SECONDS.sleep(2);
+				++num;
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -51,6 +60,8 @@ public class MyKafkaProducer extends Thread{
 			}//send方法有重载一个有回调，一个没有回调
 		}
 	}
-	
+	public static void main(String[] args) {
+		new MyKafkaProducer("test").start();
+	}
 	
 }

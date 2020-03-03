@@ -33,7 +33,7 @@ public class MyKafkaConsumer extends Thread{
 		/* 这个属性可以消费昨天帆布的数据
 		 * 一个新的group的消费者要去消费topic的信息：
 		 * earliest：消费该队列中最早存在的信息
-		 * 
+		 * latest：只拿到最新的
 		 *  
 		 */
 		properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");//  

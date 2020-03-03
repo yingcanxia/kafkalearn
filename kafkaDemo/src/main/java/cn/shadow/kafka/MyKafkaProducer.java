@@ -26,10 +26,11 @@ public class MyKafkaProducer extends Thread{
 		properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.1.132:9092");// 在这里可以设置多个字符串
 		properties.put(ProducerConfig.CLIENT_ID_CONFIG, "producer");
 		// 默认是批量发送，会存在频繁的网络通信，没有批量发送出去之前，都是存在于内存之中的
-		properties.put(ProducerConfig.BATCH_SIZE_CONFIG,"");
+		// properties.put(ProducerConfig.BATCH_SIZE_CONFIG,"");
 		// 两次发送的间隔时间，这两个条件谁先满足了，谁就开始做
-		properties.put(ProducerConfig.LINGER_MS_CONFIG, "");
-		
+		// properties.put(ProducerConfig.LINGER_MS_CONFIG, "");
+		// 指定分区部分
+		properties.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, "cn.shadow.kafka.upgrade.MyPartition");
 		// 声明序列化方式，序列化方式是根据具体类型进行的，因为kafka服务器是需要处理不同语言的
 		properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class.getName());// key值的序列化
 		properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());// value值的序列化

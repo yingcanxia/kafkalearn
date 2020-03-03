@@ -40,6 +40,8 @@
 			<groupId>org.apache.kafka</groupId>
 			<artifactId>kafka-clients</artifactId>
 		</dependency> -->
+		
+		<!-- springboot直接集成卡夫卡 -->
 	    <dependency>
 	       <groupId>org.springframework.kafka</groupId>
 	       <artifactId>spring-kafka</artifactId>

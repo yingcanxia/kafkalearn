@@ -8,6 +8,11 @@ import org.apache.kafka.clients.producer.Partitioner;
 import org.apache.kafka.common.Cluster;
 import org.apache.kafka.common.PartitionInfo;
 
+/**
+ * 如果消费者动态增减删除，或者分区书动态处理
+ * @author notto
+ *
+ */
 public class MyPartition implements Partitioner{
 
 	@Override
